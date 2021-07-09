@@ -6,12 +6,14 @@ unsigned int startPoint;
 
 struct Node {
 	unsigned int nodeName;
-	bool isVisit = false;
+	bool isVisit_dfs = false;
+	bool isVisit_bfs = false;
 	set<unsigned int> linkedNode;
 };
 vector<Node*> allNode;
+//dfs
 void dfs(Node* nowNode) {
-	nowNode->isVisit = true;
+	nowNode->isVisit_dfs = true;
 	if (nowNode->nodeName == startPoint) {
 		cout << nowNode->nodeName;
 	}
@@ -19,10 +21,34 @@ void dfs(Node* nowNode) {
 		cout << " " << nowNode->nodeName;
 	}
 	for (auto it = nowNode->linkedNode.begin(); it != nowNode->linkedNode.end(); it++) {
-		if (allNode[*it]->isVisit == false) {
+		if (allNode[*it]->isVisit_dfs == false) {
 			dfs(allNode[*it]);
 		}
 	}
+}
+//bfs
+vector<int> bfsNodeList;
+int head = 0;
+int tail = 1;
+void bfs(Node* nowNode) {
+
+	nowNode->isVisit_bfs = true;
+	if (nowNode->nodeName == startPoint) {
+		cout << nowNode->nodeName;
+	}
+	else {
+		cout << " " << nowNode->nodeName;
+	}
+	for (auto it = nowNode->linkedNode.begin(); it != nowNode->linkedNode.end(); it++) {
+		if (allNode[*it]->isVisit_bfs == false) {
+			allNode[*it]->isVisit_bfs = true;
+			bfsNodeList.push_back(*it);
+			tail++;
+		}
+	}
+	head++;
+	if (head >= tail) { return; }
+	bfs(allNode[bfsNodeList[head]]);
 }
 int main() {
 	unsigned int nodeNum;
@@ -44,5 +70,8 @@ int main() {
 		allNode[otherPoint]->linkedNode.insert(firstPoint);
 	}
 	dfs(allNode[startPoint]);
+	cout << "\n";
+	bfsNodeList.push_back(startPoint);
+	bfs(allNode[startPoint]);
 	return 0;
 }
