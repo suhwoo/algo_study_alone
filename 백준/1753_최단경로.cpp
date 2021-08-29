@@ -1,49 +1,58 @@
 #include <iostream>
 #include <vector>
+#include <queue>
+
+#define INF 1000000
 using namespace std;
 struct edge {
-	int weight;
-	int startP;
-	int endP;
+	int dest;
+	int cost;
 };
-struct Node {
-	int totalW=100000;
-	vector<edge> goList;
+struct vertex {
+	vector<edge> togo;
+	int totalCost = INF;
 };
-vector<Node> nodeList;
-void findRoute(int now) {
-	Node nowNode = nodeList[now];
-	for (int members = 0; members < nowNode.goList.size(); members++) {
-		if (nodeList[nowNode.goList[members].endP].totalW > nowNode.totalW + nowNode.goList[members].weight) {
-			nodeList[nowNode.goList[members].endP].totalW = nowNode.totalW + nowNode.goList[members].weight;
+vector<vertex> vertexList;
+void inputVer(int v,int e,int startV) {
+	int a, b, c;
+	for (int t = 0; t <= v; t++) {
+		vertex temp;
+		vertexList.push_back(temp);
+	}
+	for (int t = 0; t < e; t++) {
+		cin >> a >> b >> c;
+		edge temp = { b,c };
+		vertexList[a].togo.push_back(temp);
+	}
+}
+void solution(int startV,int v) {
+	priority_queue<pair<int, int>> pq;
+	pq.push(make_pair(0, startV));
+	vertexList[startV].totalCost = 0;
+	while (!pq.empty()) {
+		int nowV = pq.top().second;
+		int nowCost = -pq.top().first;
+		pq.pop();
+		for (int i = 0; i < vertexList[nowV].togo.size(); i++) {
+			int nextV = vertexList[nowV].togo[i].dest;
+			int nextCost = vertexList[nowV].togo[i].cost;
+
+			if (vertexList[nextV].totalCost > nowCost + nextCost) {
+				vertexList[nextV].totalCost = nowCost + nextCost;
+				pq.push(make_pair(-vertexList[nextV].totalCost, nextV));
+			}
+
 		}
-		findRoute(nowNode.goList[members].endP);
+	}
+	for (int i = 1; i <= v; i++) {
+		if (vertexList[i].totalCost == INF)cout << "INF" << "\n";
+		else cout << vertexList[i].totalCost << "\n";
 	}
 }
 int main() {
-	int ve, e;
-	int u, v, w;
-	int startV;
-	cin >> ve >> e;
-	cin >> startV;
-	for (int i = 0; i <= ve; i++) {
-		Node temp;
-		nodeList.push_back(temp);
-	}
-	for (int i = 0; i < e; i++) {
-		cin >> u >> v >> w;
-		edge temp = { w,u,v };
-		nodeList[u].goList.push_back(temp);
-	}
-	nodeList[startV].totalW = 0;
-	findRoute(startV);
-	for (int t = 1; t <= ve; t++) {
-		if (nodeList[t].totalW == 100000) {
-			cout << "INF" << "\n";
-		}
-		else {
-			cout << nodeList[t].totalW << "\n";
-		}
-	}
+	int v, e, startV;
+	cin >> v >> e >> startV;
+	inputVer(v,e,startV);
+	solution(startV,v);
 	return 0;
 }
